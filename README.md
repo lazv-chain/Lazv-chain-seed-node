@@ -1,5 +1,29 @@
 # LAZV Chain
 
+LAZV Chain = Sovereign blockchain anchored to Polygon (LUZV ERC-20).
+
+## Assets
+- LUZV (Polygon) → Digital Silver / Platinum Anchor
+- LAZV (LAZV Chain) → eMass / Gold, native coin, 1:1 backed
+- WLUZV (LAZV Chain) → optional wrapped coin
+
+## Node
+- node.py → Python node, peer discovery, mint/burn WLUZV
+- Run: `python node.py`
+- Connect to peers via `/peer`
+
+## Bridge
+- Polygon bridge event → LAZV mint / burn
+- Multisig owner recommended
+- Proof-only verification
+
+## Philosophy
+- Polygon = Mother Chain
+- LAZV = Sovereign Execution Layer
+- Community-run, trust-minimized, builder-grade
+
+# LAZV Chain
+
 LAZV is a minimal, community-run public blockchain.
 
 There is no owner.

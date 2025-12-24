@@ -1,98 +1,65 @@
-import threading
-import time
-import socket
-from flask import Flask, jsonify, request
-from blockchain import Blockchain, hybrid_sign
+from flask import Flask, request, jsonify
+import requests, json, threading, time
+from blockchain import Blockchain
 
-# Node keys
-PRIVKEY = "myclassicalkey"
-PQ_PRIVKEY = "mypqkey"
-
-chain = Blockchain()
-peers = set()
 app = Flask(__name__)
+blockchain = Blockchain()
 
-# ---------------------
-# Block producer + heartbeat
-# ---------------------
-def produce_blocks():
-    while True:
-        time.sleep(10)
-        msg = f"heartbeat {time.time()}"
-        sig = hybrid_sign(msg, PRIVKEY, PQ_PRIVKEY)
-        chain.add_block({"msg": msg, "sig": sig})
+PEERS_FILE = "peers.json"
 
-threading.Thread(target=produce_blocks, daemon=True).start()
+# --- Peer Storage ---
+def load_peers():
+    try:
+        with open(PEERS_FILE, "r") as f:
+            return json.load(f)["peers"]
+    except:
+        return []
 
-# ---------------------
-# Simple P2P listener
-# ---------------------
-def listen(port=9333):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(("0.0.0.0", port))
-    s.listen()
-    print(f"[NODE] Listening on port {port}")
-    while True:
-        conn, addr = s.accept()
-        peers.add(addr[0])
-        conn.close()
+def save_peers(peers):
+    with open(PEERS_FILE, "w") as f:
+        json.dump({"peers": peers}, f)
 
-threading.Thread(target=listen, daemon=True).start()
-
-# ---------------------
-# API endpoints
-# ---------------------
-@app.route("/")
-def status():
-    return jsonify({
-        "chain_id": chain.chain_id,
-        "height": len(chain.chain)-1,
-        "peers": len(peers),
-        "status": "LAZV node alive"
-    })
+# --- Routes ---
+@app.route("/ping", methods=["GET"])
+def ping():
+    return jsonify({"status": "alive", "length": len(blockchain.chain)})
 
 @app.route("/chain", methods=["GET"])
 def get_chain():
-    return jsonify(chain.chain)
+    return jsonify({
+        "length": len(blockchain.chain),
+        "chain": blockchain.chain
+    })
+
+@app.route("/peers", methods=["GET", "POST"])
+def peers():
+    peers = load_peers()
+    if request.method == "POST":
+        peer = request.json.get("peer")
+        if peer and peer not in peers:
+            peers.append(peer)
+            save_peers(peers)
+        return jsonify({"peers": peers})
+    return jsonify({"peers": peers})
 
 @app.route("/mine", methods=["POST"])
-def mine_block():
-    data = request.json.get("data", "empty")
-    block = chain.add_block(data)
-    return jsonify({"message":"Block added", "height":block["height"]})
+def mine():
+    data = request.json or {}
+    blockchain.add_block(data)
+    return jsonify({"message": "Block mined", "length": len(blockchain.chain)})
 
-@app.route("/add_peer", methods=["POST"])
-def add_peer():
-    addr = request.json.get("addr")
-    if addr:
-        peers.add(addr)
-        return jsonify({"message":"Peer added","addr":addr})
-    return jsonify({"error":"No addr provided"}), 400
-
-@app.route("/polygon_bridge", methods=["POST"])
-def polygon_bridge():
-    token = request.json.get("token")
-    amount = request.json.get("amount")
-    from_addr = request.json.get("from")
-    if token and amount and from_addr:
-        chain.add_polygon_event(token, amount, from_addr)
-        return jsonify({"message":"Polygon event added"})
-    return jsonify({"error":"Missing data"}), 400
-
-# ---------------------
-# Polygon anchor placeholder
-# ---------------------
-def anchor_to_polygon():
+# --- Background Peer Check ---
+def peer_heartbeat():
     while True:
-        if chain.chain:
-            latest = chain.chain[-1]
-            print(f"[ANCHOR] Would anchor block {latest['height']} hash {latest['hash']} to Polygon")
-        time.sleep(60)
+        peers = load_peers()
+        for p in peers:
+            try:
+                requests.get(p + "/ping", timeout=3)
+            except:
+                pass
+        time.sleep(30)
 
-threading.Thread(target=anchor_to_polygon, daemon=True).start()
-
-# ---------------------
-# Main
-# ---------------------
+# --- Start ---
 if __name__ == "__main__":
+    threading.Thread(target=peer_heartbeat, daemon=True).start()
     app.run(host="0.0.0.0", port=5000)

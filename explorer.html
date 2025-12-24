@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LAZV Chain Explorer</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #222; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>LAZV Chain Explorer</h1>
+  <p>Live stats from node.py</p>
+  <div id="stats"></div>
+
+  <script>
+    const NODE_URL = "http://localhost:8000/stats"; // sesuaikan node
+
+    async function fetchStats() {
+      try {
+        const res = await fetch(NODE_URL);
+        const data = await res.json();
+        document.getElementById("stats").innerHTML = `
+          <table>
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>Blocks</td><td>${data.blocks}</td></tr>
+            <tr><td>Minted WLUZV</td><td>${data.minted}</td></tr>
+            <tr><td>Burned WLUZV</td><td>${data.burned}</td></tr>
+            <tr><td>Peers</td><td>${data.peers.join(", ")}</td></tr>
+          </table>
+        `;
+      } catch (e) {
+        document.getElementById("stats").innerHTML = "Error fetching stats";
+      }
+    }
+
+    fetchStats();
+    setInterval(fetchStats, 5000); // refresh tiap 5 detik
+  </script>
+</body>
+</html>

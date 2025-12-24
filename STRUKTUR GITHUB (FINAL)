@@ -1,6 +1,12 @@
-LAZV-chain/
-├── node.py
-├── README.md
-├── MANIFESTO.md
-├── LICENSE
-└── peers.json
+LAZV-CHAIN/
+├─ node.py                  # Node Python FINAL
+├─ relayer.py               # Proof signing skeleton
+├─ explorer.html            # Live stats skeleton
+├─ seeds.json               # Seed node list
+├─ peers.json               # Peer node
+├─ README.md                # Internasional, builder-friendly
+├─ BRIDGE.md                # Bridge & multisig instructions
+├─ EXPLORER.md              # Explorer deploy guide
+├─ LIGHTWALLET.md           # Light wallet guide
+├─ MANIFESTO.md             # Filosofi & chain design
+└─ LICENSE (MIT)

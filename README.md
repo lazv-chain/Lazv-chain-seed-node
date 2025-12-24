@@ -140,3 +140,16 @@ Json
 {
   "peers": []
 }
+
+LAZV-CHAIN/
+├─ node.py
+├─ relayer.py
+├─ explorer.html
+├─ seeds.json
+├─ peers.json
+├─ README.md
+├─ BRIDGE.md
+├─ EXPLORER.md
+├─ LIGHTWALLET.md
+├─ MANIFESTO.md
+└─ LICENSE (MIT)

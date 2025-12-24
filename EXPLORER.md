@@ -1,15 +1,26 @@
-# LAZV Chain Explorer Skeleton
+# LAZV Chain Explorer Guide
 
-## Live stats endpoints
-- `/stats` → blocks, minted, burned, peers
-
-## Deployment
-- Vercel / Cloudflare Pages
-- Connect to seed node / peers
-- Auto-refresh JSON every 5-10 sec
+This guide explains how to deploy the LAZV Chain Explorer (read-only, live stats).
 
 ## Features
-- Show blocks list
-- Show WLUZV minted/burned
-- Show online peers
-- Minimal, builder-friendly
+- Live stats from node.py:
+  - Total blocks
+  - Minted WLUZV
+  - Burned WLUZV
+  - Online peers
+- Auto-refresh every 5 seconds
+- Minimal & builder-friendly
+
+## Deployment
+1. Make sure node.py is running and accessible.
+2. Upload `explorer.html` to:
+   - Vercel
+   - Cloudflare Pages
+   - VPS / web server
+3. Adjust `NODE_URL` in explorer.html to point to your node `/stats` endpoint.
+4. Open explorer.html in browser.
+
+## Optional Enhancements
+- Add charts for minted/burned WLUZV
+- Add peer status dashboard
+- Add block list with timestamp and hash

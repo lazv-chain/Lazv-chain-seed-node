@@ -1,0 +1,1 @@
+# Lazv-chain-seed-node
